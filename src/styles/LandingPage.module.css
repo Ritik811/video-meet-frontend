@@ -122,43 +122,44 @@
     transform: rotate(2deg); 
 }
 
-/* --- MOBILE RESPONSIVENESS --- */
+/* --- MOBILE RESPONSIVENESS UPDATE --- */
+
 @media (max-width: 900px) {
+    /* Pehle yahan 'display: none' tha, ab hum ise 'flex' kar rahe hain */
     .navLinksContainer {
-        display: none !important; 
+        display: flex !important; 
+        gap: 10px; /* Mobile pe thoda kam gap */
+    }
+
+    /* Mobile pe 'Join as Guest' ko chhupa dete hain taaki sirf Login/Register dikhe */
+    .guestLink {
+        display: none; 
+    }
+
+    
+
+    /* Buttons ka size mobile ke liye thoda chota kar dete hain */
+    .loginBtn, .registerBtn {
+        padding: 5px 12px !important;
+        font-size: 0.8rem !important;
     }
 
     .heroContainer {
         padding: 40px 20px !important;
     }
 
-    .ctaContainer {
-        padding-right: 0;
-        align-items: center;
-        text-align: center;
-    }
-
     .heroTitle {
-        font-size: 2.5rem !important;
-    }
-
-    .heroSubtitle {
-        max-width: 100%;
-        font-size: 1rem !important;
-        margin-bottom: 30px !important;
+        font-size: 2.2rem !important;
+        text-align: center;
     }
 
     .heroImageWrapper {
         justify-content: center !important;
-        margin-top: 40px;
+        margin-top: 30px;
     }
 
     .heroImage {
-        max-width: 350px;
-        transform: rotate(0deg); /* Flat for mobile as in homePage.jpeg */
-    }
-
-    .getStartedBtn {
-        width: 100%;
+        max-width: 280px; /* Mobile pe image thodi choti taaki screen pe fit aaye */
+        transform: rotate(0deg);
     }
 }
