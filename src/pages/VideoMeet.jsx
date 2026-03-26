@@ -391,8 +391,6 @@ export default function VideoMeetComponent() {
         height: "100vh",
         overflow: "hidden",
         bgcolor: "#202124",
-        display: "flex",
-        flexDirection: "column",
       }}
     >
       {askForUsername ? (
@@ -403,18 +401,21 @@ export default function VideoMeetComponent() {
             height: "100%",
             alignItems: "center",
             justifyContent: "center",
-            p: 2, // Padding for small screens
+            bgcolor: "#8a79e100",
+            color: "white",
+            p: { xs: 2, md: 0 }, // Mobile par thoda gap
           }}
         >
           <Paper
             elevation={10}
             sx={{
               display: "flex",
-              flexDirection: { xs: "column", md: "row" }, // Mobile: Column, Desktop: Row
-              width: "100%",
-              maxWidth: { xs: "400px", md: "900px" },
+              flexDirection: { xs: "column", md: "row" }, // Mobile pe upar neeche, desktop pe side-by-side
+              width: { xs: "100%", sm: "90%", md: "80%" },
+              maxWidth: "900px",
+              maxHeight: { xs: "90vh", md: "auto" }, // Mobile pe screen se bahar na jaye
               borderRadius: "16px",
-              overflow: "hidden",
+              overflowY: { xs: "auto", md: "hidden" }, // Mobile pe agar content bada ho toh scroll ho jaye
               bgcolor: "#000000ce",
               color: "#fff",
               boxShadow: "5px 5px 5px 3px #333331fc",
@@ -434,10 +435,10 @@ export default function VideoMeetComponent() {
               }}
             >
               <Typography
-                variant="h6"
+                variant="h5"
                 fontWeight="bold"
-                mb={2}
-                textAlign="center"
+                mb={3}
+                sx={{ fontSize: { xs: "1.2rem", md: "1.5rem" } }}
               >
                 Ready to join?
               </Typography>
@@ -445,10 +446,12 @@ export default function VideoMeetComponent() {
                 sx={{
                   position: "relative",
                   width: "100%",
+                  maxWidth: "400px",
                   aspectRatio: "16/9",
                   bgcolor: "#000",
                   borderRadius: "12px",
                   overflow: "hidden",
+                  boxShadow: "0 8px 24px rgba(0,0,0,0.5)",
                 }}
               >
                 <video
@@ -458,6 +461,7 @@ export default function VideoMeetComponent() {
                   playsInline
                   style={{ width: "100%", height: "100%", objectFit: "cover" }}
                 />
+
                 <Box
                   sx={{
                     position: "absolute",
@@ -465,36 +469,32 @@ export default function VideoMeetComponent() {
                     left: "50%",
                     transform: "translateX(-50%)",
                     display: "flex",
-                    gap: 1,
+                    gap: 2,
                   }}
                 >
                   <IconButton
-                    size="small"
                     onClick={handleAudio}
                     sx={{
                       bgcolor: audio ? "rgb(20, 20, 20)" : "#ea4335",
                       color: "white",
+                      "&:hover": {
+                        bgcolor: audio ? "rgba(37, 27, 27, 0.38)" : "#d93025",
+                      },
                     }}
                   >
-                    {audio ? (
-                      <MicIcon fontSize="small" />
-                    ) : (
-                      <MicOffIcon fontSize="small" />
-                    )}
+                    {audio ? <MicIcon /> : <MicOffIcon />}
                   </IconButton>
                   <IconButton
-                    size="small"
                     onClick={handleVideo}
                     sx={{
                       bgcolor: video ? "rgba(20,20,20)" : "#ea4335",
                       color: "white",
+                      "&:hover": {
+                        bgcolor: video ? "rgba(37,27,27,0.38)" : "#d93025",
+                      },
                     }}
                   >
-                    {video ? (
-                      <VideocamIcon fontSize="small" />
-                    ) : (
-                      <VideocamOffIcon fontSize="small" />
-                    )}
+                    {video ? <VideocamIcon /> : <VideocamOffIcon />}
                   </IconButton>
                 </Box>
               </Box>
@@ -510,10 +510,15 @@ export default function VideoMeetComponent() {
                 justifyContent: "center",
               }}
             >
-              <Typography variant="h5" fontWeight="bold" mb={1}>
+              <Typography
+                variant="h4"
+                fontWeight="bold"
+                mb={1}
+                sx={{ fontSize: { xs: "1.8rem", md: "2.1rem" } }}
+              >
                 Join Meeting
               </Typography>
-              <Typography variant="body2" color="#FAF9F6" mb={3}>
+              <Typography variant="body1" color="#FAF9F6" mb={4}>
                 Enter your name to connect.
               </Typography>
 
@@ -524,18 +529,28 @@ export default function VideoMeetComponent() {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 sx={{
-                  mb: 2,
+                  mb: 3,
                   input: { color: "white" },
                   label: { color: "gray" },
-                  "& .MuiOutlinedInput-root fieldset": { borderColor: "#555" },
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": { borderColor: "#555" },
+                    "&:hover fieldset": { borderColor: "#888" },
+                    "&.Mui-focused fieldset": { borderColor: "#1976d2" },
+                  },
                 }}
               />
               <Button
                 variant="contained"
-                fullWidth
+                color="primary"
+                size="large"
                 onClick={connect}
                 disabled={!username.trim()}
-                sx={{ py: 1.5, textTransform: "none", borderRadius: "8px" }}
+                sx={{
+                  py: 1.5,
+                  fontSize: "1.1rem",
+                  borderRadius: "8px",
+                  textTransform: "none",
+                }}
               >
                 Join Now
               </Button>
@@ -544,15 +559,16 @@ export default function VideoMeetComponent() {
         </Box>
       ) : (
         // --- MEETING UI (Responsive) ---
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            height: "100%",
-            position: "relative",
-          }}
-        >
-          <Box sx={{ display: "flex", flex: 1, overflow: "hidden" }}>
+        <Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: { xs: "column", md: "row" }, // Mobile pe chat neeche aa sakti hai agar jagah kam ho
+              flex: 1,
+              overflow: "hidden",
+              position: "relative",
+            }}
+          >
             {/* Videos Grid */}
             <Box
               sx={{
@@ -560,29 +576,32 @@ export default function VideoMeetComponent() {
                 display: "flex",
                 flexWrap: "wrap",
                 justifyContent: "center",
-                alignContent: "center",
+                alignItems: "center",
                 gap: { xs: 1, md: 2 },
                 p: { xs: 1, md: 2 },
                 overflowY: "auto",
               }}
             >
+              {/* Remote Videos */}
               {videos.map((vid) => (
                 <Box
                   key={vid.socketId}
                   sx={{
                     position: "relative",
-                    width: {
-                      xs: "100%", // Mobile: Full width
-                      sm: videos.length === 1 ? "90%" : "48%", // Tablet
-                      md: videos.length === 1 ? "70%" : "45%", // Desktop
-                    },
+                    width:
+                      videos.length === 1
+                        ? { xs: "100%", md: "80%" }
+                        : { xs: "100%", sm: "45%" },
+                    minWidth: { xs: "100%", sm: "300px" },
                     aspectRatio: "16/9",
                     bgcolor: "#3c4043",
                     borderRadius: "12px",
                     overflow: "hidden",
+                    boxShadow: 3,
                   }}
                 >
                   <video
+                    data-socket={vid.socketId}
                     ref={(ref) => {
                       if (ref && vid.stream) ref.srcObject = vid.stream;
                     }}
@@ -597,44 +616,48 @@ export default function VideoMeetComponent() {
                   <Box
                     sx={{
                       position: "absolute",
-                      bottom: 8,
-                      left: 8,
+                      bottom: 10,
+                      left: 10,
                       bgcolor: "rgba(0,0,0,0.6)",
                       color: "white",
-                      px: 1,
+                      px: 1.5,
                       py: 0.5,
                       borderRadius: "4px",
                       fontSize: "12px",
                     }}
                   >
-                    {vid.username || "Participant"}
+                    {vid.username ? vid.username : "Participant"}
                   </Box>
                 </Box>
               ))}
 
-              {/* Local Video - In grid if solo, else floating PIP */}
+              {/* Local Video (Floating) */}
               <Box
                 sx={
                   videos.length > 0
                     ? {
                         position: "absolute",
-                        bottom: { xs: 90, md: 20 }, // Lifted on mobile to avoid control bar
-                        right: { xs: 10, md: showModal ? 380 : 20 },
-                        width: { xs: "120px", md: "240px" },
+                        bottom: { xs: 90, md: 20 }, // Mobile pe bar ke upar
+                        right: { xs: 10, md: showModal ? 370 : 20 },
+                        width: { xs: "120px", md: "240px" }, // Mobile pe chota PIP
                         aspectRatio: "16/9",
                         bgcolor: "#000",
-                        borderRadius: "8px",
+                        borderRadius: "12px",
                         overflow: "hidden",
+                        boxShadow: "0 4px 12px rgba(0,0,0,0.5)",
                         border: "2px solid #555",
                         zIndex: 10,
                         transition: "all 0.3s ease",
                       }
                     : {
-                        width: { xs: "100%", md: "70%" },
+                        width: "80%",
+                        maxWidth: "900px",
                         aspectRatio: "16/9",
                         bgcolor: "#3c4043",
                         borderRadius: "12px",
                         overflow: "hidden",
+                        boxShadow: 3,
+                        position: "relative",
                       }
                 }
               >
@@ -650,6 +673,21 @@ export default function VideoMeetComponent() {
                     transform: "scaleX(-1)",
                   }}
                 />
+                <Box
+                  sx={{
+                    position: "absolute",
+                    bottom: 5,
+                    left: 5,
+                    bgcolor: "rgba(0,0,0,0.6)",
+                    color: "white",
+                    px: 1,
+                    py: 0.2,
+                    borderRadius: "4px",
+                    fontSize: "10px",
+                  }}
+                >
+                  You
+                </Box>
               </Box>
             </Box>
 
@@ -657,21 +695,24 @@ export default function VideoMeetComponent() {
             {showModal && (
               <Box
                 sx={{
-                  width: { xs: "100%", sm: "350px" }, // Full width on mobile
-                  position: { xs: "absolute", sm: "relative" }, // Overlay on mobile
-                  height: "100%",
+                  width: { xs: "100%", md: "360px" }, // Mobile pe full width chat
+                  height: { xs: "40%", md: "100%" }, // Mobile pe aadhi screen
+                  position: { xs: "absolute", md: "relative" },
+                  bottom: 0,
                   right: 0,
-                  top: 0,
                   bgcolor: "#242424",
                   display: "flex",
                   flexDirection: "column",
                   borderLeft: "1px solid #3c4043",
+                  boxShadow: "-8px 0 24px rgba(0,0,0,0.4)",
                   zIndex: 20,
                 }}
               >
+                {/* Header */}
                 <Box
                   sx={{
-                    p: 2,
+                    p: "12px 20px",
+                    borderBottom: "1px solid #3c4043",
                     display: "flex",
                     justifyContent: "space-between",
                     alignItems: "center",
@@ -680,20 +721,20 @@ export default function VideoMeetComponent() {
                 >
                   <Typography
                     variant="subtitle1"
-                    fontWeight="bold"
-                    color="white"
+                    sx={{ color: "#e8eaed", fontWeight: 600 }}
                   >
                     Meeting Chat
                   </Typography>
                   <IconButton
                     size="small"
                     onClick={() => setModal(false)}
-                    sx={{ color: "white" }}
+                    sx={{ color: "#9aa0a6" }}
                   >
                     ✖
                   </IconButton>
                 </Box>
 
+                {/* Messages Area */}
                 <Box
                   sx={{
                     flex: 1,
@@ -704,38 +745,71 @@ export default function VideoMeetComponent() {
                     gap: 2,
                   }}
                 >
-                  {/* Messages mapping... (keep your existing logic here) */}
+                  {messages.map((item, index) => (
+                    <Box
+                      key={index}
+                      sx={{
+                        display: "flex",
+                        gap: 1.5,
+                        alignItems: "flex-start",
+                      }}
+                    >
+                      <Avatar
+                        sx={{
+                          width: 28,
+                          height: 28,
+                          fontSize: "12px",
+                          bgcolor:
+                            item.sender === username ? "#0b57d0" : "#00796b",
+                        }}
+                      >
+                        {item.sender?.charAt(0).toUpperCase()}
+                      </Avatar>
+                      <Box>
+                        <Typography
+                          variant="caption"
+                          sx={{ color: "#8ab4f8", fontWeight: 600 }}
+                        >
+                          {item.sender === username ? "You" : item.sender}
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          sx={{ color: "#d2d3d7", fontSize: "0.85rem" }}
+                        >
+                          {item.data}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  ))}
                 </Box>
 
+                {/* Input Area */}
                 <Box
                   sx={{
                     p: 2,
-                    bgcolor: "#1c1f25",
                     borderTop: "1px solid #3c4043",
+                    bgcolor: "#1c1f25",
                   }}
                 >
                   <Box sx={{ display: "flex", gap: 1 }}>
                     <TextField
-                      fullWidth
-                      size="small"
                       value={message}
                       onChange={(e) => setMessage(e.target.value)}
-                      placeholder="Type message..."
+                      placeholder="Message..."
+                      fullWidth
+                      size="small"
                       sx={{
                         bgcolor: "#32363f",
-                        borderRadius: "4px",
+                        borderRadius: "8px",
                         input: { color: "white" },
                       }}
                     />
                     <IconButton
                       onClick={sendMessage}
-                      sx={{
-                        bgcolor: "#0b57d0",
-                        color: "white",
-                        "&:hover": { bgcolor: "#0842a0" },
-                      }}
+                      disabled={!message.trim()}
+                      sx={{ bgcolor: "#0b57d0", color: "white" }}
                     >
-                      <SendIcon fontSize="small" />
+                      <SendIcon />
                     </IconButton>
                   </Box>
                 </Box>
@@ -806,8 +880,8 @@ export default function VideoMeetComponent() {
               sx={{
                 bgcolor: "#ea4335",
                 color: "white",
-                width: { xs: 50, md: 65 },
-                height: { xs: 35, md: 40 },
+                width: { xs: 50, md: 60 },
+                height: 40,
                 borderRadius: "20px",
               }}
             >
@@ -1034,21 +1108,6 @@ export default function VideoMeetComponent() {
 //                       objectFit: "cover",
 //                     }}
 //                   />
-//                   {/* <Box
-//                     sx={{
-//                       position: "absolute",
-//                       bottom: 10,
-//                       left: 10,
-//                       bgcolor: "rgba(0,0,0,0.6)",
-//                       color: "white",
-//                       px: 1.5,
-//                       py: 0.5,
-//                       borderRadius: "4px",
-//                       fontSize: "14px",
-//                     }}
-//                   >
-
-//                   </Box> */}
 
 //                   <Box
 //                     sx={{

@@ -124,24 +124,28 @@
 
 /* --- MOBILE RESPONSIVENESS UPDATE --- */
 
+
+
 @media (max-width: 900px) {
-    /* Pehle yahan 'display: none' tha, ab hum ise 'flex' kar rahe hain */
     .navLinksContainer {
         display: flex !important; 
-        gap: 10px; /* Mobile pe thoda kam gap */
+        gap: 10px; 
     }
 
-    /* Mobile pe 'Join as Guest' ko chhupa dete hain taaki sirf Login/Register dikhe */
     .guestLink {
         display: none; 
     }
 
-    
-
-    /* Buttons ka size mobile ke liye thoda chota kar dete hain */
     .loginBtn, .registerBtn {
         padding: 5px 12px !important;
         font-size: 0.8rem !important;
+    }
+
+    /* --- CTA Section Center Fix --- */
+    .ctaContainer {
+        padding-right: 0;         /* Mobile pe padding zero */
+        align-items: center;      /* Saara content (Text + Button) center karega */
+        text-align: center;       /* Text ko center karega */
     }
 
     .heroContainer {
@@ -151,6 +155,20 @@
     .heroTitle {
         font-size: 2.2rem !important;
         text-align: center;
+        margin-left: auto;        /* Center alignment handle karne ke liye */
+        margin-right: auto;
+    }
+
+    .heroSubtitle {
+        text-align: center;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .getStartedBtn {
+        margin: 0 auto !important; /* Button ko horizontal center karne ki main line */
+        width: 100%;               /* Optional: Mobile pe button thoda bada dikhe */
+        max-width: 250px;          /* Button bohot zyada phail na jaye */
     }
 
     .heroImageWrapper {
@@ -159,7 +177,8 @@
     }
 
     .heroImage {
-        max-width: 280px; /* Mobile pe image thodi choti taaki screen pe fit aaye */
+        max-width: 280px; 
         transform: rotate(0deg);
+        filter: drop-shadow(10px 20px 30px rgba(0, 0, 0, 0.15));
     }
 }
