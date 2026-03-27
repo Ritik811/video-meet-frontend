@@ -22,6 +22,7 @@
 // import StopScreenShareIcon from "@mui/icons-material/StopScreenShare";
 // import ChatIcon from "@mui/icons-material/Chat";
 // import SendIcon from "@mui/icons-material/Send";
+// import FlipCameraIosIcon from "@mui/icons-material/FlipCameraIos"; // <-- Naya Icon Import kiya
 // import server from "../environment";
 
 // const server_url = server;
@@ -42,7 +43,7 @@
 //   let [video, setVideo] = useState(true);
 //   let [audio, setAudio] = useState(true);
 //   let [screen, setScreen] = useState(false);
-//   let [showModal, setModal] = useState(false); // Default chat hidden for clean UI
+//   let [showModal, setModal] = useState(false);
 //   let [screenAvailable, setScreenAvailable] = useState(false);
 //   let [messages, setMessages] = useState([]);
 //   let [message, setMessage] = useState("");
@@ -51,9 +52,8 @@
 //   let [username, setUsername] = useState("");
 //   let [videos, setVideos] = useState([]);
 
-//   // ==========================================
-//   // TUMHARI ORIGINAL LOGIC (NO CHANGES HERE)
-//   // ==========================================
+//   // --- NAYA STATE: Track whether front or back camera is active ---
+//   let [facingMode, setFacingMode] = useState("user");
 
 //   useEffect(() => {
 //     getPermissions();
@@ -68,7 +68,7 @@
 //   const getPermissions = async () => {
 //     try {
 //       const stream = await navigator.mediaDevices.getUserMedia({
-//         video: true,
+//         video: { facingMode: "user" }, // default front camera
 //         audio: true,
 //       });
 //       if (stream) {
@@ -99,7 +99,6 @@
 //     socketRef.current = io.connect(server_url, { secure: false });
 //     socketRef.current.on("signal", gotMessageFromServer);
 //     socketRef.current.on("connect", () => {
-//       // Yahan hum join-call karte time apna 'username' bhej rahe hain
 //       socketRef.current.emit("join-call", window.location.href, username);
 
 //       socketIdRef.current = socketRef.current.id;
@@ -109,7 +108,6 @@
 //         setVideos((videos) => videos.filter((video) => video.socketId !== id));
 //       });
 
-//       // 🟢 UPDATE: Yahan id aur clients ke sath 'userNames' bhi backend se aa raha hai
 //       socketRef.current.on("user-joined", (id, clients, userNames) => {
 //         clients.forEach((socketListId) => {
 //           connections[socketListId] = new RTCPeerConnection(
@@ -142,13 +140,12 @@
 //                 return updatedVideos;
 //               });
 //             } else {
-//               // 🟢 UPDATE: Naya video banate time hum backend se aaya hua naam yahan save kar rahe hain
 //               let newVideo = {
 //                 socketId: socketListId,
 //                 stream: event.stream,
 //                 autoplay: true,
 //                 playsinline: true,
-//                 username: userNames[socketListId], // Yahan se user ka actual naam aayega
+//                 username: userNames[socketListId],
 //               };
 
 //               setVideos((videos) => {
@@ -276,7 +273,7 @@
 //         console.log(e);
 //       }
 //       const userMediaStream = await navigator.mediaDevices.getUserMedia({
-//         video: true,
+//         video: { facingMode: facingMode }, // Use current facingMode
 //         audio: true,
 //       });
 //       window.localStream = userMediaStream;
@@ -341,6 +338,52 @@
 //     }
 //   };
 
+//   // =======================================================
+//   // --- NAYA LOGIC: Camera Toggle (Front <-> Back) --------
+//   // =======================================================
+//   const handleToggleCamera = async () => {
+//     const newFacingMode = facingMode === "user" ? "environment" : "user";
+//     setFacingMode(newFacingMode);
+
+//     try {
+//       // Naya stream request karo (naya camera)
+//       const newStream = await navigator.mediaDevices.getUserMedia({
+//         video: { facingMode: newFacingMode },
+//         audio: audio, // audio ka wahi state rakho jo abhi hai
+//       });
+
+//       if (window.localStream) {
+//         // Purana video track nikalo aur stop karo
+//         const oldVideoTrack = window.localStream.getVideoTracks()[0];
+//         if (oldVideoTrack) oldVideoTrack.stop();
+//         window.localStream.removeTrack(oldVideoTrack);
+
+//         // Naya video track localStream me add karo
+//         const newVideoTrack = newStream.getVideoTracks()[0];
+//         window.localStream.addTrack(newVideoTrack);
+
+//         // Video UI update karo
+//         if (localVideoref.current) {
+//           localVideoref.current.srcObject = window.localStream;
+//         }
+
+//         // WebRTC connections update karo (taaki dusre logo ko naya view dikhe bina call end hue)
+//         for (let id in connections) {
+//           const senders = connections[id].getSenders();
+//           const videoSender = senders.find(
+//             (s) => s.track && s.track.kind === "video",
+//           );
+//           if (videoSender) {
+//             videoSender.replaceTrack(newVideoTrack);
+//           }
+//         }
+//       }
+//     } catch (err) {
+//       console.error("Error switching camera:", err);
+//     }
+//   };
+//   // =======================================================
+
 //   useEffect(() => {
 //     if (screen) getDisplayMedia();
 //   }, [screen]);
@@ -380,10 +423,7 @@
 //     }
 //   };
 
-//   // ==========================================
-//   // NAYA PRO INDUSTRY LEVEL UI
-//   // ==========================================
-
+//   // --- YE WAHI RETURN HAI JO PEHLE UPDATE KIYA THA ---
 //   return (
 //     <Box
 //       sx={{
@@ -396,7 +436,6 @@
 //       }}
 //     >
 //       {askForUsername ? (
-//         // --- LOBBY UI (Redesigned for Professional Look) ---
 //         <Box
 //           sx={{
 //             display: "flex",
@@ -421,7 +460,6 @@
 //               color: "#fff",
 //             }}
 //           >
-//             {/* Video Preview Section */}
 //             <Box
 //               sx={{
 //                 flex: 1.2,
@@ -431,7 +469,6 @@
 //                 alignItems: "center",
 //                 justifyContent: "center",
 //               }}
-//               Pip
 //             >
 //               <Box
 //                 sx={{
@@ -453,11 +490,9 @@
 //                     width: "100%",
 //                     height: "100%",
 //                     objectFit: "cover",
-//                     transform: "scaleX(-1)",
+//                     transform: facingMode === "user" ? "scaleX(-1)" : "none", // Front camera pe mirror
 //                   }}
 //                 />
-
-//                 {/* Floating Media Toggles Over Video */}
 //                 <Box
 //                   sx={{
 //                     position: "absolute",
@@ -481,6 +516,7 @@
 //                   >
 //                     {audio ? <MicIcon /> : <MicOffIcon />}
 //                   </IconButton>
+
 //                   <IconButton
 //                     onClick={handleVideo}
 //                     sx={{
@@ -494,11 +530,25 @@
 //                   >
 //                     {video ? <VideocamIcon /> : <VideocamOffIcon />}
 //                   </IconButton>
+
+//                   <IconButton
+//                     onClick={handleToggleCamera}
+//                     sx={{
+//                       width: 50,
+//                       height: 50,
+//                       bgcolor: "rgba(60, 64, 67, 0.8)",
+//                       color: "white",
+//                       border: "1px solid rgba(255,255,255,0.2)",
+//                       "&:hover": { bgcolor: "#4a4d51" },
+//                       display: { xs: "flex", md: "none" },
+//                     }}
+//                   >
+//                     <FlipCameraIosIcon />
+//                   </IconButton>
 //                 </Box>
 //               </Box>
 //             </Box>
 
-//             {/* Input Section */}
 //             <Box
 //               sx={{
 //                 flex: 0.8,
@@ -562,7 +612,6 @@
 //           </Paper>
 //         </Box>
 //       ) : (
-//         // --- MEETING UI (Responsive & Professional) ---
 //         <Box
 //           sx={{
 //             display: "flex",
@@ -579,7 +628,6 @@
 //               overflow: "hidden",
 //             }}
 //           >
-//             {/* Videos Grid */}
 //             <Box
 //               sx={{
 //                 flex: 1,
@@ -593,15 +641,14 @@
 //                 transition: "all 0.3s ease",
 //               }}
 //             >
-//               {/* Remote Videos */}
 //               {videos.map((vid) => (
 //                 <Box
 //                   key={vid.socketId}
 //                   sx={{
 //                     position: "relative",
 //                     width: {
-//                       xs: "100%", // Mobile pe full width
-//                       sm: videos.length === 1 ? "80%" : "45%", // Tablet/Desktop logic
+//                       xs: "100%",
+//                       sm: videos.length === 1 ? "80%" : "45%",
 //                     },
 //                     maxWidth: videos.length === 1 ? "900px" : "100%",
 //                     aspectRatio: "16/9",
@@ -642,7 +689,6 @@
 //                 </Box>
 //               ))}
 
-//               {/* Local Video - Floating PIP on Mobile & Desktop */}
 //               <Box
 //                 sx={{
 //                   position: {
@@ -679,7 +725,7 @@
 //                     width: "100%",
 //                     height: "100%",
 //                     objectFit: "cover",
-//                     transform: "scaleX(-1)",
+//                     transform: facingMode === "user" ? "scaleX(-1)" : "none", // Front camera pe mirror
 //                   }}
 //                 />
 //                 <Typography
@@ -700,12 +746,11 @@
 //               </Box>
 //             </Box>
 
-//             {/* Chat Sidebar (Responsive) */}
 //             {showModal && (
 //               <Box
 //                 sx={{
 //                   width: { xs: "100%", md: "360px" },
-//                   height: { xs: "50%", md: "100%" }, // Mobile pe niche se aadha dikhega
+//                   height: { xs: "50%", md: "100%" },
 //                   position: { xs: "absolute", md: "relative" },
 //                   bottom: 0,
 //                   right: 0,
@@ -717,7 +762,6 @@
 //                   zIndex: 20,
 //                 }}
 //               >
-//                 {/* Chat Header */}
 //                 <Box
 //                   sx={{
 //                     p: 2,
@@ -737,7 +781,6 @@
 //                   </IconButton>
 //                 </Box>
 
-//                 {/* Messages Area */}
 //                 <Box
 //                   sx={{
 //                     flex: 1,
@@ -776,7 +819,6 @@
 //                   ))}
 //                 </Box>
 
-//                 {/* Chat Input */}
 //                 <Box sx={{ p: 2, bgcolor: "#1c1f25", display: "flex", gap: 1 }}>
 //                   <TextField
 //                     fullWidth
@@ -804,7 +846,6 @@
 //             )}
 //           </Box>
 
-//           {/* Bottom Control Bar (Responsive) */}
 //           <Box
 //             sx={{
 //               height: { xs: "70px", md: "80px" },
@@ -844,6 +885,18 @@
 //               ) : (
 //                 <VideocamOffIcon fontSize="small" />
 //               )}
+//             </IconButton>
+
+//             <IconButton
+//               onClick={handleToggleCamera}
+//               sx={{
+//                 bgcolor: "#3c4043",
+//                 color: "white",
+//                 "&:hover": { bgcolor: "#4a4d51" },
+//                 display: { xs: "flex", md: "none" },
+//               }}
+//             >
+//               <FlipCameraIosIcon fontSize="small" />
 //             </IconButton>
 
 //             {screenAvailable && (
@@ -920,7 +973,7 @@ import ScreenShareIcon from "@mui/icons-material/ScreenShare";
 import StopScreenShareIcon from "@mui/icons-material/StopScreenShare";
 import ChatIcon from "@mui/icons-material/Chat";
 import SendIcon from "@mui/icons-material/Send";
-import FlipCameraIosIcon from "@mui/icons-material/FlipCameraIos"; // <-- Naya Icon Import kiya
+import FlipCameraIosIcon from "@mui/icons-material/FlipCameraIos";
 import server from "../environment";
 
 const server_url = server;
@@ -1237,47 +1290,54 @@ export default function VideoMeetComponent() {
   };
 
   // =======================================================
-  // --- NAYA LOGIC: Camera Toggle (Front <-> Back) --------
+  // --- NAYA LOGIC: UPDATED Hardware Camera Toggle --------
   // =======================================================
   const handleToggleCamera = async () => {
-    const newFacingMode = facingMode === "user" ? "environment" : "user";
-    setFacingMode(newFacingMode);
-
     try {
-      // Naya stream request karo (naya camera)
+      const newFacingMode = facingMode === "user" ? "environment" : "user";
+
+      // 1. Sabse pehle purane video tracks ko COMPLETELY stop karo
+      // Taaki mobile device ka camera lens lock release ho jaye
+      if (window.localStream) {
+        const oldVideoTracks = window.localStream.getVideoTracks();
+        oldVideoTracks.forEach((track) => {
+          track.stop(); // Hardware lens off
+          window.localStream.removeTrack(track); // Stream se hatao
+        });
+      }
+
+      // 2. Naya stream request karo (Sirf video ka request bhejna zaroori hai, audio hum purana wala hi use karenge)
       const newStream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: newFacingMode },
-        audio: audio, // audio ka wahi state rakho jo abhi hai
+        // Audio request nahi kar rahe taaki mic pe concurrent access error na aaye
       });
 
-      if (window.localStream) {
-        // Purana video track nikalo aur stop karo
-        const oldVideoTrack = window.localStream.getVideoTracks()[0];
-        if (oldVideoTrack) oldVideoTrack.stop();
-        window.localStream.removeTrack(oldVideoTrack);
+      const newVideoTrack = newStream.getVideoTracks()[0];
 
-        // Naya video track localStream me add karo
-        const newVideoTrack = newStream.getVideoTracks()[0];
-        window.localStream.addTrack(newVideoTrack);
+      // 3. Naye video track ko purane local stream me daal do (jisme mic abhi bhi chal raha hai)
+      window.localStream.addTrack(newVideoTrack);
 
-        // Video UI update karo
-        if (localVideoref.current) {
-          localVideoref.current.srcObject = window.localStream;
-        }
+      // 4. Apne local UI me video update karo
+      if (localVideoref.current) {
+        localVideoref.current.srcObject = window.localStream;
+      }
 
-        // WebRTC connections update karo (taaki dusre logo ko naya view dikhe bina call end hue)
-        for (let id in connections) {
-          const senders = connections[id].getSenders();
-          const videoSender = senders.find(
-            (s) => s.track && s.track.kind === "video",
-          );
-          if (videoSender) {
-            videoSender.replaceTrack(newVideoTrack);
-          }
+      // 5. Baaki sab participants ko naya track bhej do (WebRTC pe)
+      for (let id in connections) {
+        const senders = connections[id].getSenders();
+        const videoSender = senders.find(
+          (s) => s.track && s.track.kind === "video",
+        );
+        if (videoSender) {
+          videoSender.replaceTrack(newVideoTrack);
         }
       }
+
+      // 6. UI/Mirror settings ke liye state update karo
+      setFacingMode(newFacingMode);
     } catch (err) {
       console.error("Error switching camera:", err);
+      alert("Camera switch nahi ho paya. Permissions check karein.");
     }
   };
   // =======================================================
@@ -1321,7 +1381,7 @@ export default function VideoMeetComponent() {
     }
   };
 
-  // --- YE WAHI RETURN HAI JO PEHLE UPDATE KIYA THA ---
+  // UI (Return part wahi hai, bas ensure karo ki 'transform' CSS update ho camera ke according)
   return (
     <Box
       sx={{
@@ -1388,7 +1448,7 @@ export default function VideoMeetComponent() {
                     width: "100%",
                     height: "100%",
                     objectFit: "cover",
-                    transform: facingMode === "user" ? "scaleX(-1)" : "none", // Front camera pe mirror
+                    transform: facingMode === "user" ? "scaleX(-1)" : "none", // Yahan Front me mirror, back me normal
                   }}
                 />
                 <Box
@@ -1623,7 +1683,7 @@ export default function VideoMeetComponent() {
                     width: "100%",
                     height: "100%",
                     objectFit: "cover",
-                    transform: facingMode === "user" ? "scaleX(-1)" : "none", // Front camera pe mirror
+                    transform: facingMode === "user" ? "scaleX(-1)" : "none", // Same Mirror check here
                   }}
                 />
                 <Typography
