@@ -18,13 +18,22 @@ export default function LandingPage() {
   return (
     <Box className={styles.mainWrapper}>
       {/* 1. NAVBAR */}
-      <AppBar position="static" color="transparent" elevation={0} className={styles.navbar}>
+      <AppBar
+        position="static"
+        color="transparent"
+        elevation={0}
+        className={styles.navbar}
+      >
         <Container maxWidth="lg">
-          <Toolbar disableGutters sx={{ display: "flex", justifyContent: "space-between" }}>
-            
+          <Toolbar
+            disableGutters
+            sx={{ display: "flex", justifyContent: "space-between" }}
+          >
             {/* Logo Section */}
             <Box className={styles.logoBox} onClick={() => router("/")}>
-              <VideoCallIcon sx={{ color: "#FF9839", fontSize: { xs: 40, md: 55 } }} />
+              <VideoCallIcon
+                sx={{ color: "#FF9839", fontSize: { xs: 40, md: 55 } }}
+              />
               <Typography variant="h5" component="div">
                 <h1 className={styles.brandName}>BUEST</h1>
               </Typography>
@@ -32,15 +41,26 @@ export default function LandingPage() {
 
             {/* Desktop Buttons */}
             <Box className={styles.navLinksContainer}>
-              <Typography onClick={() => router("/guest")} className={styles.guestLink}>
+              <Typography
+                onClick={() => router("/guest")}
+                className={styles.guestLink}
+              >
                 Join as Guest
               </Typography>
 
               <Stack direction="row" spacing={2}>
-                <Button variant="outlined" onClick={() => router("/auth")} className={styles.loginBtn}>
+                <Button
+                  variant="outlined"
+                  onClick={() => router("/auth")}
+                  className={styles.loginBtn}
+                >
                   Login
                 </Button>
-                <Button variant="contained" onClick={() => router("/auth")} className={styles.registerBtn}>
+                <Button
+                  variant="contained"
+                  onClick={() => router("/auth")}
+                  className={styles.registerBtn}
+                >
                   Register
                 </Button>
               </Stack>
@@ -50,10 +70,12 @@ export default function LandingPage() {
       </AppBar>
 
       {/* 2. HERO SECTION */}
-      <Container maxWidth="lg" sx={{ flexGrow: 1, display: 'flex', alignItems: 'center' }}>
+      <Container
+        maxWidth="lg"
+        sx={{ flexGrow: 1, display: "flex", alignItems: "center" }}
+      >
         {/* Pehle jaisa balance lane ke liye md={5} aur md={7} kiya hai */}
         <Grid container spacing={2} alignItems="center">
-          
           {/* Left Side: Text Content */}
           <Grid item xs={12} md={5}>
             <Box className={styles.ctaContainer}>
